@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelPredict AI | Système de Prédiction d'Annulation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-light: #8b5cf6;
+            --primary-dark: #6d28d9;
+            --secondary: #0ea5e9;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark-bg: #0f172a;
+            --dark-card: #1e293b;
+            --dark-card-hover: #334155;
+            --dark-text: #f1f5f9;
+            --dark-text-secondary: #94a3b8;
+            --border-radius: 16px;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1e293b 100%);
+            color: var(--dark-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo i {
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--dark-text-secondary);
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link.active,
+        .nav-link:hover {
+            color: var(--primary-light);
+            background-color: rgba(124, 58, 237, 0.1);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-icon {
+            background: var(--dark-card);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-icon:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background: var(--dark-card);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            color: var(--dark-text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            min-width: 140px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        @media (max-width: 1100px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--dark-card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .card-body {
+            padding: 25px;
+            width: 100%;
+        }
+
+        /* Horizontal Form Styles */
+        .form-section {
+            height: fit-content;
+            width: 100%;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+
+        @media (max-width: 1200px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .form-label i {
+            color: var(--primary);
+            width: 16px;
+            flex-shrink: 0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--dark-text);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Ensure the form takes full width */
+        #reservationForm {
+            width: 100%;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 16px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--dark-text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--dark-text);
+        }
+
+        .btn-full {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Prediction Result */
+        .prediction-result {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 100%;
+        }
+
+        .prediction-confirmed {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .prediction-canceled {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        .prediction-icon {
+            font-size: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+        .prediction-content {
+            flex: 1;
+        }
+
+        .prediction-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .prediction-description {
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .probability-meter {
+            margin-top: 15px;
+        }
+
+        .probability-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .probability-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .probability-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .fill-confirmed {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .fill-canceled {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .probability-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Factors List */
+        .factors-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .factor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .factor-item:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .factor-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .factor-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .factor-value {
+            font-size: 0.9rem;
+            color: var(--dark-text-secondary);
+        }
+
+        .factor-impact {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .positive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .neutral {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--dark-text-secondary);
+        }
+
+        /* Recommendations */
+        .recommendations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .recommendation-item:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .recommendation-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .recommendation-content h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .recommendation-content p {
+            font-size: 0.9rem;
+            color: var(--dark-text-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark-text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 30px;
+            width: 100%;
+        }
+        select.form-input option {
+            background-color: #1e293b;
+            color: #eee;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav {
+                gap: 10px;
+            }
+            
+            .hero {
+                flex-direction: column;
+                gap: 30px;
+                text-align: center;
+            }
+            
+            .hero-stats {
+                justify-content: center;
+            }
+            
+            .prediction-result {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-hotel"></i>
+                <span>HotelPredict AI</span>
+            </div>
+            <!-- <nav class="nav">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-chart-line"></i>
+                    Prédiction
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytiques
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historique
+                </a> -->
+            <!-- </nav>
+            <div class="user-actions">
+                <button class="btn-icon">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="user-avatar">
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=7c3aed&color=fff" alt="Admin">
+                </div>
+            </div> -->
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">Prédiction d'Annulation de Réservation</h1>
+                    <p class="hero-description">
+                        Notre système d'IA analyse les données de réservation pour prédire la probabilité d'annulation avec une précision de 85%.
+                    </p>
+                </div>
+                <!-- <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">84%</div>
+                        <div class="stat-label">Précision</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">12K+</div>
+                        <div class="stat-label">Analyses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">87%</div>
+                        <div class="stat-label">Économies</div>
+                    </div> -->
+                </div>
+            </section>
+
+            <!-- Form and Results Section -->
+            <div class="content-grid">
+                <!-- Form Section -->
+                <section class="form-section card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-edit"></i>
+                            Détails de la Réservation
+                        </h2>
+                        <div class="card-actions">
+                            <button class="btn-secondary" id="resetBtn">
+                                <i class="fas fa-redo"></i>
+                                Réinitialiser
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form id="reservationForm" action='/predict' method='POST'>
+                            <div class="form-grid">
+                                <!-- Ligne 1 -->
+                                <div class="form-group">
+                                    <label for="no_of_adults" class="form-label">
+                                        <i class="fas fa-user"></i>
+                                        Nombre d'adultes
+                                    </label>
+                                    <input type="number"  name="no_of_adults" id="no_of_adults" min="1" max="10" value="" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="no_of_children" class="form-label">
+                                        <i class="fas fa-child"></i>
+                                        Nombre d'enfants
+                                    </label>
+                                    <input type="number" name="no_of_children" id="no_of_children" min="0" max="10" value="" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="no_of_weekend_nights" class="form-label">
+                                        <i class="fas fa-moon"></i>
+                                        Nuits week-end
+                                    </label>
+                                    <input type="number" name="no_of_weekend_nights" id="no_of_weekend_nights" min="0" max="2" value="" class="form-input">
+                                </div>
+
+                                <!-- Ligne 2 -->
+                                <div class="form-group">
+                                    <label for="no_of_week_nights" class="form-label">
+                                        <i class="fas fa-calendar-day"></i>
+                                        Nuits semaine
+                                    </label>
+                                    <input type="number" name="no_of_week_nights" id="no_of_week_nights" min="0" max="5" value="" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="type_of_meal_plan" class="form-label">
+                                        <i class="fas fa-utensils"></i>
+                                        Plan de repas
+                                    </label>
+                                    <select name="type_of_meal_plan" id="type_of_meal_plan" class="form-input">
+                                        <option value="Not Selected">Non sélectionné</option>
+                                        <option value="Meal Plan 1">Plan 1 (Petit-déjeuner)</option>
+                                        <option value="Meal Plan 2">Plan 2 (Demi-pension)</option>
+                                        <option value="Meal Plan 3">Plan 3 (Pension complète)</option>
+                                        
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="required_car_parking_space" class="form-label">
+                                        <i class="fas fa-parking"></i>
+                                        Stationnement
+                                    </label>
+                                    <select name="required_car_parking_space" id="required_car_parking_space" class="form-input">
+                                        <option value="0">Non</option>
+                                        <option value="1">Oui</option>
+                                    </select>
+                                </div>
+
+                                <!-- Ligne 3 -->
+                                <div class="form-group">
+                                    <label for="room_type_reserved" class="form-label">
+                                        <i class="fas fa-bed"></i>
+                                        Type de chambre
+                                    </label>
+                                    <select name="room_type_reserved" id="room_type_reserved" class="form-input">
+                                        <option value="Room_Type 1">Type 1 (Standard)</option>
+                                        <option value="Room_Type 2">Type 2 (Supérieure)</option>
+                                        <option value="Room_Type 3">Type 3 (Deluxe)</option>
+                                        <option value="Room_Type 4">Type 4 (Suite)</option>
+                                        <option value="Room_Type 5">Type 5 (Familiale)</option>
+                                        <option value="Room_Type 6">Type 6 (Exécutive)</option>
+                                        <option value="Room_Type 7">Type 7 (Présidentielle)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lead_time" class="form-label">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Délai (jours)
+                                    </label>
+                                    <input type="number" name="lead_time" id="lead_time" min="0" value="" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="market_segment_type" class="form-label">
+                                        <i class="fas fa-chart-pie"></i>
+                                        Segment marché
+                                    </label>
+                                    <select name="market_segment_type" id="market_segment_type" class="form-input">
+                                        <option value="Aviation">Aviation</option>
+                                        <option value="Complementary">Complémentaire</option>
+                                        <option value="Corporate">Entreprise</option>
+                                        <option value="Offline">Hors ligne</option>
+                                        <option value="Online">En ligne</option>
+                                    </select>
+                                </div>
+
+                                <!-- Ligne 4 -->
+                                <div class="form-group">
+                                    <label for="arrival_month" class="form-label">
+                                        <i class="fas fa-calendar-week"></i>
+                                        Mois arrivée
+                                    </label>
+                                    <select name="arrival_month" id="arrival_month" class="form-input">
+                                        <option value="1">Janvier</option>
+                                        <option value="2">Février</option>
+                                        <option value="3">Mars</option>
+                                        <option value="4">Avril</option>
+                                        <option value="5">Mai</option>
+                                        <option value="6">Juin</option>
+                                        <option value="7">Juillet</option>
+                                        <option value="8">Août</option>
+                                        <option value="9">Septembre</option>
+                                        <option value="10">Octobre</option>
+                                        <option value="11">Novembre</option>
+                                        <option value="12">Décembre</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="arrival_date" class="form-label">
+                                        <i class="fas fa-calendar-day"></i>
+                                        Jour arrivée
+                                    </label>
+                                    <input type="number"  name="arrival_date" id="arrival_date" min="1" max="31" value="" class="form-input">
+                                </div>
+
+                                <!-- Ligne 5 -->
+                                <div class="form-group">
+                                    <label for="repeated_guest" class="form-label">
+                                        <i class="fas fa-redo"></i>
+                                        Client récurrent
+                                    </label>
+                                    <select name="repeated_guest" id="repeated_guest" class="form-input">
+                                        <option value="0">Non</option>
+                                        <option value="1">Oui</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="no_of_previous_cancellations" class="form-label">
+                                        <i class="fas fa-times-circle"></i>
+                                        Annulations précédentes
+                                    </label>
+                                    <input type="number" name="no_of_previous_cancellations" id="no_of_previous_cancellations" min="0" max="20" value="" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="no_of_previous_bookings_not_canceled" class="form-label">
+                                        <i class="fas fa-check-circle"></i>
+                                        Réservations honorées
+                                    </label>
+                                    <input type="number" name="no_of_previous_bookings_not_canceled" id="no_of_previous_bookings_not_canceled" min="0" value="" class="form-input">
+                                </div>
+
+                                <!-- Ligne 6 -->
+                                <div class="form-group">
+                                    <label for="avg_price_per_room" class="form-label">
+                                        <i class="fas fa-euro-sign"></i>
+                                        Prix moyen (€)
+                                    </label>
+                                    <input type="number" name="avg_price_per_room" id="avg_price_per_room" min="0" max="1000" step="0.01" value="" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="no_of_special_requests" class="form-label">
+                                        <i class="fas fa-star"></i>
+                                        Demandes spéciales
+                                    </label>
+                                    <input type="number" name="no_of_special_requests" id="no_of_special_requests" min="0" value="0" class="form-input">
+                                </div>
+                            </div>
+                            
+                            <button type="submit" value="Predict" class="btn-primary btn-full">
+                                <i class="fas fa-chart-line"></i>
+                                Analyser la Réservation
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Results Section -->
+                <section class="results-section">
+                    <!-- Prediction Card -->
+                    <div class="prediction-card card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-chart-pie"></i>
+                                Résultat de l'Analyse
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            {% if error %}
+                                <div class="prediction-result prediction-canceled">
+                                    <div class="prediction-icon">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="prediction-content">
+                                        <h3 class="prediction-title">Erreur</h3>
+                                        <p class="prediction-description">{{ error }}</p>
+                                    </div>
+                                </div>
+                            {% elif result is defined %}
+                                {% if result == 1 %}
+                                <div class="prediction-result prediction-confirmed">
+                                    <div class="prediction-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="prediction-content">
+                                        <h3 class="prediction-title">{{ result_message }}</h3>
+                                        <p class="prediction-description">Faible risque d'annulation</p>
+                                        <div class="probability-meter">
+                                            <div class="probability-labels">
+                                                <span>Élevé risque</span>
+                                                <span>Faible risque</span>
+                                            </div>
+                                            <div class="probability-bar">
+                                                <div class="probability-fill fill-confirmed" style="width: {{ confidence }}%"></div>
+                                            </div>
+                                            <div class="probability-value">Probabilité de confirmation: {{ probability }}%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="prediction-result prediction-canceled">
+                                    <div class="prediction-icon">
+                                        <i class="fas fa-times-circle"></i>
+                                    </div>
+                                    <div class="prediction-content">
+                                        <h3 class="prediction-title">{{ result_message }}</h3>
+                                        <p class="prediction-description">Fort risque d'annulation</p>
+                                        <div class="probability-meter">
+                                            <div class="probability-labels">
+                                                <span>Faible risque</span>
+                                                <span>Élevé risque</span>
+                                            </div>
+                                            <div class="probability-bar">
+                                                <div class="probability-fill fill-canceled" style="width: {{ confidence }}%"></div>
+                                            </div>
+                                            <!-- CORRECTION : Afficher la probabilité d'annulation -->
+                                            <div class="probability-value">Probabilité d'annulation: {{ probability }}%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                            <div class="prediction-result prediction-confirmed">
+                                <div class="prediction-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="prediction-content">
+                                    <h3 class="prediction-title">En attente d'analyse</h3>
+                                    <p class="prediction-description">Veuillez remplir le formulaire et cliquer sur "Analyser la Réservation"</p>
+                                    <div class="probability-meter">
+                                        <div class="probability-labels">
+                                            <span>Faible risque</span>
+                                            <span>Élevé risque</span>
+                                        </div>
+                                        <div class="probability-bar">
+                                            <div class="probability-fill fill-confirmed" style="width: 50%"></div>
+                                        </div>
+                                        <div class="probability-value">Résultat en attente</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="factors-card card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-chart-bar"></i>
+                                Facteurs Influents
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="factors-list" id="factorsList">
+                                {% if has_form_data %}
+                                    <!-- Facteurs générés DYNAMIQUEMENT par Flask -->
+                                    {% set factors = [] %}
+                                    
+                                    {# Facteur 1: Délai de réservation #}
+                                    {% if form_data.lead_time > 90 %}
+                                        {% set _ = factors.append({'name': 'Délai de réservation élevé', 'value': form_data.lead_time ~ ' jours', 'impact': 'negative'}) %}
+                                    {% elif form_data.lead_time < 30 %}
+                                        {% set _ = factors.append({'name': 'Délai de réservation court', 'value': form_data.lead_time ~ ' jours', 'impact': 'positive'}) %}
+                                    {% else %}
+                                        {% set _ = factors.append({'name': 'Délai de réservation', 'value': form_data.lead_time ~ ' jours', 'impact': 'neutral'}) %}
+                                    {% endif %}
+                                    
+                                    {# Facteur 2: Prix de la chambre #}
+                                    {% if form_data.avg_price_per_room > 150 %}
+                                        {% set _ = factors.append({'name': 'Prix élevé de la chambre', 'value': '€' ~ "%.2f"|format(form_data.avg_price_per_room), 'impact': 'negative'}) %}
+                                    {% elif form_data.avg_price_per_room < 100 %}
+                                        {% set _ = factors.append({'name': 'Prix compétitif de la chambre', 'value': '€' ~ "%.2f"|format(form_data.avg_price_per_room), 'impact': 'positive'}) %}
+                                    {% else %}
+                                        {% set _ = factors.append({'name': 'Prix de la chambre', 'value': '€' ~ "%.2f"|format(form_data.avg_price_per_room), 'impact': 'neutral'}) %}
+                                    {% endif %}
+                                    
+                                    {# Facteur 3: Annulations précédentes - CORRIGÉ #}
+                                    {% if form_data.no_of_previous_cancellations > 0 %}
+                                        {% set _ = factors.append({'name': 'Antécédents d annulation', 'value': form_data.no_of_previous_cancellations ~ ' annulation(s)', 'impact': 'negative'}) %}
+                                    {% endif %}
+                                    
+                                    {# Facteur 4: Client récurrent #}
+                                    {% if form_data.repeated_guest == 1 %}
+                                        {% set _ = factors.append({'name': 'Client récurrent', 'value': 'Oui', 'impact': 'positive'}) %}
+                                    {% endif %}
+                                    
+                                    {# Facteur 5: Demandes spéciales #}
+                                    {% if form_data.no_of_special_requests > 0 %}
+                                        {% set _ = factors.append({'name': 'Demandes spéciales', 'value': form_data.no_of_special_requests ~ ' demande(s)', 'impact': 'positive'}) %}
+                                    {% endif %}
+                                    
+                                    {# Facteur 6: Type de chambre #}
+                                    {% if form_data.room_type_reserved == 'Room_Type 7' %}
+                                        {% set _ = factors.append({'name': 'Chambre haut de gamme', 'value': 'Suite présidentielle', 'impact': 'positive'}) %}
+                                    {% elif form_data.room_type_reserved == 'Room_Type 1' %}
+                                        {% set _ = factors.append({'name': 'Chambre standard', 'value': 'Type économique', 'impact': 'negative'}) %}
+                                    {% endif %}
+                                    
+                                    {# Facteur 7: Plan de repas #}
+                                    {% if form_data.type_of_meal_plan == 'Not Selected' %}
+                                        {% set _ = factors.append({'name': 'Aucun plan de repas', 'value': 'Non sélectionné', 'impact': 'negative'}) %}
+                                    {% elif form_data.type_of_meal_plan == 'Meal Plan 3' %}
+                                        {% set _ = factors.append({'name': 'Plan repas complet', 'value': 'Pension complète', 'impact': 'positive'}) %}
+                                    {% endif %}
+                                    
+                                    {# Facteur 8: Stationnement #}
+                                    {% if form_data.required_car_parking_space == 1 %}
+                                        {% set _ = factors.append({'name': 'Stationnement réservé', 'value': 'Oui', 'impact': 'positive'}) %}
+                                    {% endif %}
+                                    
+                                    {# Facteur 9: Segment de marché #}
+                                    {% if form_data.market_segment_type == 'Corporate' %}
+                                        {% set _ = factors.append({'name': 'Segment entreprise', 'value': 'Réservation professionnelle', 'impact': 'positive'}) %}
+                                    {% elif form_data.market_segment_type == 'Online' %}
+                                        {% set _ = factors.append({'name': 'Réservation en ligne', 'value': 'Canaux digitaux', 'impact': 'negative'}) %}
+                                    {% endif %}
+                                    
+                                    {# Facteur 10: Saisonnalité #}
+                                    {% if form_data.arrival_month in [6, 7, 8, 12] %}
+                                        {% set _ = factors.append({'name': 'Haute saison', 'value': 'Période de forte demande', 'impact': 'positive'}) %}
+                                    {% elif form_data.arrival_month in [1, 2, 11] %}
+                                        {% set _ = factors.append({'name': 'Basse saison', 'value': 'Période de faible demande', 'impact': 'negative'}) %}
+                                    {% endif %}
+                                    
+                                    <!-- Afficher TOUS les facteurs détectés -->
+                                    {% for factor in factors %}
+                                    <div class="factor-item">
+                                        <div class="factor-info">
+                                            <span class="factor-name">{{ factor.name }}</span>
+                                            <span class="factor-value">{{ factor.value }}</span>
+                                        </div>
+                                        <div class="factor-impact {{ factor.impact }}">
+                                            {% if factor.impact == 'positive' %}
+                                                <i class="fas fa-arrow-down"></i> Réduit le risque
+                                            {% elif factor.impact == 'negative' %}
+                                                <i class="fas fa-arrow-up"></i> Augmente le risque
+                                            {% else %}
+                                                <i class="fas fa-minus"></i> Impact neutre
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    
+                                    <!-- Si AUCUN facteur significatif -->
+                                    {% if factors|length == 0 %}
+                                    <div class="factor-item">
+                                        <div class="factor-info">
+                                            <span class="factor-name">Aucun facteur significatif détecté</span>
+                                            <span class="factor-value">Tous les paramètres sont dans la moyenne</span>
+                                        </div>
+                                        <div class="factor-impact neutral">
+                                            <i class="fas fa-chart-line"></i> Situation équilibrée
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                {% else %}
+                                    <!-- État INITIAL (avant toute analyse) -->
+                                    <div class="factor-item">
+                                        <div class="factor-info">
+                                            <span class="factor-name">En attente d'analyse</span>
+                                            <span class="factor-value">Les facteurs s'afficheront après analyse</span>
+                                        </div>
+                                        <div class="factor-impact neutral">
+                                            <i class="fas fa-clock"></i> En attente
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Info sur le modèle (optionnel) -->
+                                    <div class="factor-item">
+                                        <div class="factor-info">
+                                            <span class="factor-name">Analyse par IA</span>
+                                            <span class="factor-value">Modèle de régression logistique - 84% de précision</span>
+                                        </div>
+                                        <div class="factor-impact neutral">
+                                            <i class="fas fa-robot"></i> Machine Learning
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <!-- <footer class="footer">
+            <p>HotelPredict AI &copy; 2023 - Système de prédiction d'annulation de réservation hôtelière</p>
+        </footer> -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reservationForm = document.getElementById('reservationForm');
+            const resetBtn = document.getElementById('resetBtn');
+            const factorsList = document.getElementById('factorsList');
+            const recommendationsList = document.getElementById('recommendationsList');
+            
+
+            {% if form_data %}
+                console.log("📊 Données Flask reçues, mise à jour de l'interface...");
+                updateDynamicContent({{ form_data | tojson }});
+            {% else %}
+                // Sinon, simulation initiale
+                simulatePrediction();
+            {% endif %}
+        
+            reservationForm.addEventListener('submit', function(e) {
+                simulatePrediction();
+            });
+            
+            resetBtn.addEventListener('click', function() {
+                reservationForm.reset();
+                updatePredictionResult(0.15, 'confirmed');
+                updateFactorsList();
+                updateRecommendations('confirmed');
+            });
+
+            // Fonction pour mettre à jour le contenu avec les données Flask
+            function updateDynamicContent(formData) {
+                console.log("Mise à jour avec données:", formData);
+                
+                // Mettre à jour les facteurs influents
+                updateFactorsList(
+                    formData.lead_time,
+                    formData.avg_price_per_room,
+                    formData.no_of_previous_cancellations,
+                    formData.repeated_guest,
+                    formData.no_of_special_requests,
+                    formData.room_type_reserved,
+                    formData.type_of_meal_plan,
+                    formData.required_car_parking_space,
+                    formData.market_segment_type,
+                    formData.arrival_month
+                );
+                
+                // Mettre à jour les recommandations basées sur le résultat Flask
+                const status = {{ result }} == 1 ? 'confirmed' : 'canceled';
+                const probability = {{ probability }} / 100;
+                updateRecommendations(status, probability);
+                console.log(probability);
+            }
+            
+            // Vos autres fonctions restent identiques
+            function simulatePrediction() {
+                const leadTime = parseInt(document.getElementById('lead_time').value);
+                const avgPrice = parseFloat(document.getElementById('avg_price_per_room').value);
+                const repeatedGuest = parseInt(document.getElementById('repeated_guest').value);
+                const previousCancellations = parseInt(document.getElementById('no_of_previous_cancellations').value);
+                const specialRequests = parseInt(document.getElementById('no_of_special_requests').value);
+                const roomType = document.getElementById('room_type_reserved').value;
+                const mealPlan = document.getElementById('type_of_meal_plan').value;
+                const parking = parseInt(document.getElementById('required_car_parking_space').value);
+                const marketSegment = document.getElementById('market_segment_type').value;
+                
+                let cancelProbability = 0;
+                
+                if (leadTime > 180) cancelProbability += 30;
+                else if (leadTime > 90) cancelProbability += 20;
+                else if (leadTime > 30) cancelProbability += 10;
+                
+                if (avgPrice > 200) cancelProbability += 15;
+                else if (avgPrice < 80) cancelProbability -= 5;
+                
+                if (previousCancellations > 0) cancelProbability += (previousCancellations * 10);
+                
+                if (roomType === 'Room_Type 1') cancelProbability += 5;
+                if (roomType === 'Room_Type 7') cancelProbability -= 5;
+                
+                if (mealPlan === 'Not Selected') cancelProbability += 8;
+                
+                if (parking === 1) cancelProbability -= 3;
+                
+                if (marketSegment === 'Online') cancelProbability += 5;
+                if (marketSegment === 'Corporate') cancelProbability -= 5;
+                
+                if (repeatedGuest === 1) cancelProbability -= 20;
+                
+                if (specialRequests > 0) cancelProbability -= (specialRequests * 5);
+                
+                cancelProbability = Math.max(0, Math.min(100, cancelProbability));
+                const confirmProbability = 100 - cancelProbability;
+                
+                const status = cancelProbability > 50 ? 'canceled' : 'confirmed';
+                
+                updatePredictionResult(cancelProbability / 100, status);
+                updateFactorsList(leadTime, avgPrice, previousCancellations, repeatedGuest, specialRequests, roomType, mealPlan, parking, marketSegment);
+                updateRecommendations(status, cancelProbability);
+            }
+            
+            function updatePredictionResult(cancelProbability, status) {
+                // Cette fonction est maintenant principalement pour la simulation
+                // Les vraies données viennent de Flask
+                const confirmProbability = 1 - cancelProbability;
+                
+                if (status === 'canceled') {
+                    // Mise à jour visuelle pour simulation
+                    document.querySelector('.prediction-result').className = 'prediction-result prediction-canceled';
+                    document.querySelector('.prediction-title').textContent = 'Risque d\'Annulation';
+                    document.querySelector('.prediction-description').textContent = 'Probabilité d\'annulation élevée';
+                    document.querySelector('.probability-fill').style.width = `${cancelProbability * 100}%`;
+                    document.querySelector('.probability-value').textContent = `Probabilité d'annulation: ${(cancelProbability * 100).toFixed(1)}%`;
+                } else {
+                    // Mise à jour visuelle pour simulation
+                    document.querySelector('.prediction-result').className = 'prediction-result prediction-confirmed';
+                    document.querySelector('.prediction-title').textContent = 'Réservation Confirmée';
+                    document.querySelector('.prediction-description').textContent = 'Probabilité d\'annulation faible';
+                    document.querySelector('.probability-fill').style.width = `${confirmProbability * 100}%`;
+                    document.querySelector('.probability-value').textContent = `Probabilité de confirmation: ${(confirmProbability * 100).toFixed(1)}%`;
+                }
+            }
+            
+            function updateFactorsList(leadTime, avgPrice, previousCancellations, repeatedGuest, specialRequests, roomType, mealPlan, parking, marketSegment) {
+                factorsList.innerHTML = '';
+                
+                const factors = [];
+                
+                if (leadTime > 90) {
+                    factors.push({name: 'Délai de réservation élevé', value: `${leadTime} jours`, impact: 'negative'});
+                } else if (leadTime < 30) {
+                    factors.push({name: 'Délai de réservation court', value: `${leadTime} jours`, impact: 'positive'});
+                } else {
+                    factors.push({name: 'Délai de réservation', value: `${leadTime} jours`, impact: 'neutral'});
+                }
+                
+                if (avgPrice > 150) {
+                    factors.push({name: 'Prix élevé de la chambre', value: `€${avgPrice.toFixed(2)}`, impact: 'negative'});
+                } else if (avgPrice < 100) {
+                    factors.push({name: 'Prix compétitif de la chambre', value: `€${avgPrice.toFixed(2)}`, impact: 'positive'});
+                } else {
+                    factors.push({name: 'Prix de la chambre', value: `€${avgPrice.toFixed(2)}`, impact: 'neutral'});
+                }
+                
+                if (previousCancellations > 0) {
+                    factors.push({name: 'Antécédents d\'annulation', value: `${previousCancellations} annulation(s)`, impact: 'negative'});
+                }
+                
+                if (repeatedGuest === 1) {
+                    factors.push({name: 'Client récurrent', value: 'Oui', impact: 'positive'});
+                }
+                
+                if (specialRequests > 0) {
+                    factors.push({name: 'Demandes spéciales', value: `${specialRequests} demande(s)`, impact: 'positive'});
+                }
+                
+                if (roomType === 'Room_Type 7') {
+                    factors.push({name: 'Chambre haut de gamme', value: 'Suite présidentielle', impact: 'positive'});
+                }
+                
+                if (mealPlan === 'Not Selected') {
+                    factors.push({name: 'Aucun plan de repas', value: 'Non sélectionné', impact: 'negative'});
+                }
+                
+                if (parking === 1) {
+                    factors.push({name: 'Stationnement réservé', value: 'Oui', impact: 'positive'});
+                }
+                
+                if (marketSegment === 'Corporate') {
+                    factors.push({name: 'Segment entreprise', value: 'Réservation professionnelle', impact: 'positive'});
+                }
+                
+                factors.forEach(factor => {
+                    const factorItem = document.createElement('div');
+                    factorItem.className = 'factor-item';
+                    
+                    let impactClass = '';
+                    let impactIcon = '';
+                    let impactText = '';
+                    
+                    if (factor.impact === 'positive') {
+                        impactClass = 'positive';
+                        impactIcon = '<i class="fas fa-arrow-down"></i>';
+                        impactText = 'Impact positif';
+                    } else if (factor.impact === 'negative') {
+                        impactClass = 'negative';
+                        impactIcon = '<i class="fas fa-arrow-up"></i>';
+                        impactText = 'Impact négatif';
+                    } else {
+                        impactClass = 'neutral';
+                        impactIcon = '<i class="fas fa-minus"></i>';
+                        impactText = 'Impact neutre';
+                    }
+                    
+                    factorItem.innerHTML = `
+                        <div class="factor-info">
+                            <span class="factor-name">${factor.name}</span>
+                            <span class="factor-value">${factor.value}</span>
+                        </div>
+                        <div class="factor-impact ${impactClass}">
+                            ${impactIcon}
+                            ${impactText}
+                        </div>
+                    `;
+                    
+                    factorsList.appendChild(factorItem);
+                });
+            }
+            
+            function updateRecommendations(status, cancelProbability) {
+                recommendationsList.innerHTML = '';
+                
+                const recommendations = [];
+                
+                if (status === 'canceled' || cancelProbability > 30) {
+                    recommendations.push({
+                        icon: 'fas fa-comment-dollar',
+                        title: 'Offre spéciale',
+                        description: 'Proposer une réduction pour confirmation anticipée'
+                    });
+                    
+                    recommendations.push({
+                        icon: 'fas fa-gift',
+                        title: 'Avantage supplémentaire',
+                        description: 'Ajouter un service gratuit (petit-déjeuner, stationnement)'
+                    });
+                    
+                    recommendations.push({
+                        icon: 'fas fa-phone',
+                        title: 'Contact personnel',
+                        description: 'Contacter le client pour confirmer les détails'
+                    });
+                } else {
+                    recommendations.push({
+                        icon: 'fas fa-thumbs-up',
+                        title: 'Réservation stable',
+                        description: 'Aucune action immédiate nécessaire'
+                    });
+                    
+                    recommendations.push({
+                        icon: 'fas fa-envelope',
+                        title: 'Email de confirmation',
+                        description: 'Envoyer un email de bienvenue avec les détails'
+                    });
+                    
+                    recommendations.push({
+                        icon: 'fas fa-user-check',
+                        title: 'Préparation standard',
+                        description: 'Préparer la chambre selon les préférences standard'
+                    });
+                }
+                
+                recommendations.forEach(rec => {
+                    const recItem = document.createElement('div');
+                    recItem.className = 'recommendation-item';
+                    
+                    recItem.innerHTML = `
+                        <div class="recommendation-icon">
+                            <i class="${rec.icon}"></i>
+                        </div>
+                        <div class="recommendation-content">
+                            <h4>${rec.title}</h4>
+                            <p>${rec.description}</p>
+                        </div>
+                    `;
+                    
+                    recommendationsList.appendChild(recItem);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
