@@ -1,7 +1,3 @@
-Here is a professional and comprehensive `README.md` content in English, tailored to your files (`deploy.py`, `model.ipynb`, and the dataset).
-
----
-
 # 🏨 Hotel Booking Cancellation Predictor
 
 This project is a **Machine Learning** web application designed to predict whether a hotel reservation will be canceled or fulfilled. By analyzing various factors such as lead time, price, and special requests, the model helps hotel managers anticipate cancellations and optimize their occupancy rates.
