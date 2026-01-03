@@ -14,7 +14,7 @@ The project involves a complete pipeline:
 * **Language:** Python 3.x
 * **Machine Learning:** Scikit-Learn, Pandas, NumPy
 * **Web Framework:** Flask
-* **Frontend:** HTML5, CSS3 (Bootstrap)
+* **Frontend:** HTML5, CSS
 * **Data Source:** `HotelReservations.csv`
 
 ## 📂 Project Structure
